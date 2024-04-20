@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   render,
-  cleanup,
+  // cleanup,
   fireEvent,
   waitFor,
   waitForElement,
@@ -9,7 +9,7 @@ import {
   waitForElementToBeRemoved
 } from '@testing-library/react';
 // import {waitForElement} from "@testing-library/dom"
-import '@testing-library/jest-dom/extend-expect';
+// import '@testing-library/jest-dom/extend-expect';
 import { UserSignupPage } from './UserSignupPage';
 
 beforeEach(cleanup);

@@ -5,7 +5,9 @@ export class UserSignupPage extends React.Component {
         displayName: '',
         userName: '',
         password: '',
-        passwordRepeat: ''
+        passwordRepeat: '',
+        pendingApiCall: false,
+        errors: {}
     };
     onChangeDisplayName = (event) => {
         const value = event.target.value;
@@ -29,8 +31,19 @@ export class UserSignupPage extends React.Component {
             userName: this.state.userName,
             displayName: this.state.displayName,
             password: this.state.password
-        } 
-        this.props.actions.postSignup(user);   
+        };
+        this.setState({pendingApiCall: true}); 
+        this.props.actions.postSignup(user)
+            .then((response) => {
+                this.setState({ pendingApiCall: false });
+            })
+            .catch(apiError => {
+                let errors = {...this.state.errors }
+                if(apiError.response.data && apiError.response.data.validationErrors){
+                    errors = {...apiError.response.data.validationErrors}
+                }
+                this.setState({ pendingApiCall: false, errors });
+            });   
     };
 
     render() {
@@ -45,6 +58,9 @@ export class UserSignupPage extends React.Component {
                         value={this.state.displayName}
                         onChange={this.onChangeDisplayName}
                     />
+                </div>
+                <div className = "invalid-feedback">
+                    {this.state.errors.displayName}
                 </div>
                 <div className="col-12 mb-3">
                     <label>Your username</label>
@@ -76,13 +92,23 @@ export class UserSignupPage extends React.Component {
                     />
                 </div>
                 <div className="text-center">
-                    <button className="btn btn-primary" onClick={this.onClickSignup}>Sign Up</button>
+                    <button 
+                        className="btn btn-primary" 
+                        onClick={this.onClickSignup}
+                        disabled={this.state.pendingApiCall}
+                    >
+                        {this.state.pendingApiCall && (
+                        <div className="spinner-border text-light spinner-border-sm mr-1">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>)}
+                        Sign Up
+                    </button>
                 </div>
 
 
 
             </div>
-        )
+        );
     }
 }
 
