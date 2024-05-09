@@ -1,5 +1,7 @@
 import React from 'react';
 import Input from '../components/Input';
+import ButtonWithProgress from '../components/ButtonWithProgress';
+import { withRouter } from '../components/withRouter';
 
 export class UserSignupPage extends React.Component {
     state = {
@@ -48,7 +50,9 @@ export class UserSignupPage extends React.Component {
         this.setState({pendingApiCall: true}); 
         this.props.actions.postSignup(user)
             .then((response) => {
-                this.setState({ pendingApiCall: false });
+                this.setState({ pendingApiCall: false }, () => {
+                    this.props.navigate('/');
+                });
             })
             .catch(apiError => {
                 let errors = {...this.state.errors }
@@ -106,21 +110,13 @@ export class UserSignupPage extends React.Component {
                     />
                 </div>
                 <div className="text-center">
-                    <button 
-                        className="btn btn-primary" 
+                    <ButtonWithProgress 
                         onClick={this.onClickSignup}
                         disabled={this.state.pendingApiCall || !this.state.passwordRepeatConfirmed}
-                    >
-                        {this.state.pendingApiCall && (
-                        <div className="spinner-border text-light spinner-border-sm mr-1">
-                            <span className="visually-hidden">Loading...</span>
-                        </div>)}
-                        Sign Up
-                    </button>
+                        pendingApiCall={this.state.pendingApiCall}
+                        text="Sign Up"
+                    />
                 </div>
-
-
-
             </div>
         );
     }
@@ -135,4 +131,4 @@ UserSignupPage.defaultProps = {
     }
 };
 
-export default UserSignupPage;
+export default withRouter(UserSignupPage);

@@ -1,13 +1,19 @@
 import React from 'react';
 import Input from '../components/Input';
+import ButtonWithProgress from '../components/ButtonWithProgress';
+import { withRouter } from '../components/withRouter';
+
+
 
 export class LoginPage extends React.Component {
-
+    
     state = {
         username: '',
         password:'',
-        apiError: undefined
-    }
+        apiError: undefined,
+        pendingApiCall: false,
+        //redirect: false
+    };
 
     onChangeUsername = (event) => {
         const value = event.target.value;
@@ -24,28 +30,42 @@ export class LoginPage extends React.Component {
             apiError: undefined
         });
     };
-
+    
     onClickLogin = () => {
+        
         const body = {
             username: this.state.username,
             password: this.state.password
         };
+
+        
+        this.setState({pendingApiCall: true});
         this.props.actions
             .postLogin(body)
+            .then(response => {    
+                this.setState({pendingApiCall: false}, () => {
+                   this.props.navigate('/');
+                }); 
+                
+            })
             .catch(error => {
                 if(error.response){
-                    this.setState({apiError: error.response.data.message});
+                    this.setState({
+                        apiError: error.response.data.message,
+                        pendingApiCall: false
+                    });
                 }
             });
+            
     };
-
 
     render() {
         let disabledSubmit = false;
+        
         if(this.state.username === ''||this.state.password === ''){
             disabledSubmit = true;
         }
-
+        
         return (
             <div className="container">
                 <h1 className="text-center">Login</h1>
@@ -68,19 +88,18 @@ export class LoginPage extends React.Component {
                 </div>
                 {this.state.apiError && (
                     <div className="col-12 mb-3">
-                        <div class="alert alert-danger">
+                        <div className="alert alert-danger">
                             {this.state.apiError}
                         </div>
                     </div>
                 )}
                 <div className="text-center">
-                    <button 
-                        className="btn btn-primary" 
+                    <ButtonWithProgress
                         onClick={this.onClickLogin}
-                        disabled={disabledSubmit}
-                    >
-                        Login
-                    </button>
+                        disabled={disabledSubmit || this.state.pendingApiCall}
+                        text="Login"
+                        pendingApiCall={this.state.pendingApiCall}
+                    />
                 </div>
             </div>
         );
@@ -104,4 +123,4 @@ LoginPage.defaultProps = {
 //     }
 // };
 
-export default LoginPage;
+export default withRouter(LoginPage);

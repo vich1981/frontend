@@ -1,19 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-// import App from './App';
+import { HashRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
-import { UserSignupPage } from './pages/UserSignupPage';
-import { LoginPage } from './pages/LoginPage';
-import * as apiCalls from './api/apiCalls';
+import App from './containers/App';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import authReducer from './redux/authReducer';
 
-const actions = {
-  postSignup: apiCalls.signup
-};
+const store = configureStore({
+  reducer: authReducer,
+  middleware: [thunkMiddleware],
+});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+  
   <React.StrictMode>
-    <LoginPage />
+    <Provider store={store}>
+      <HashRouter >
+        <App />
+      </HashRouter>  
+    </Provider>
+
   </React.StrictMode>
 );
 
