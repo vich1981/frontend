@@ -9,8 +9,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './redux/authReducer';
 
 const store = configureStore({
-  reducer: authReducer,
-  middleware: [thunkMiddleware],
+  reducer: authReducer
+  //middleware: [thunkMiddleware],
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
