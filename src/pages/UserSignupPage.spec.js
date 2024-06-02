@@ -308,7 +308,7 @@ describe('UserSignupPage', () => {
           response: {
             data:{
               validationErrors: {
-                userName: 'User name cannot be null'
+                username: 'User name cannot be null'
               }
             }
           }

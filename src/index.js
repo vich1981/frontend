@@ -5,13 +5,9 @@ import { HashRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 import App from './containers/App';
 import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './redux/authReducer';
+import configStore from './redux/configureStore';
 
-const store = configureStore({
-  reducer: authReducer
-  //middleware: [thunkMiddleware],
-});
+const store = configStore();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

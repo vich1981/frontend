@@ -2,6 +2,8 @@ import React from 'react';
 import Input from '../components/Input';
 import ButtonWithProgress from '../components/ButtonWithProgress';
 import { withRouter } from '../components/withRouter';
+import { connect, useDispatch } from 'react-redux';
+import * as authActions from '../redux/authActions';
 
 
 
@@ -37,16 +39,15 @@ export class LoginPage extends React.Component {
             username: this.state.username,
             password: this.state.password
         };
-
+        //const dispatch = useDispatch();
         
         this.setState({pendingApiCall: true});
         this.props.actions
             .postLogin(body)
-            .then(response => {    
+            .then(response => {  
                 this.setState({pendingApiCall: false}, () => {
                    this.props.navigate('/');
                 }); 
-                
             })
             .catch(error => {
                 if(error.response){
@@ -112,7 +113,8 @@ LoginPage.defaultProps = {
             new Promise((resolve, reject) => {
                 resolve({});
             })
-    }
+    },
+    dispatch: () => {}
 };
 // serSignupPage.defaultProps = {
 //     actions: {
@@ -122,5 +124,12 @@ LoginPage.defaultProps = {
 //             })
 //     }
 // };
+const mapDispatchToProps = dispatch => {
+    return {
+        actions: {
+            postLogin: (body) => dispatch(authActions.loginHandler(body))
+        }
+    };
+};
 
-export default withRouter(LoginPage);
+export default connect(null, mapDispatchToProps)(withRouter(LoginPage));

@@ -2,11 +2,13 @@ import React from 'react';
 import Input from '../components/Input';
 import ButtonWithProgress from '../components/ButtonWithProgress';
 import { withRouter } from '../components/withRouter';
+import { connect } from 'react-redux';
+import * as authActions from '../redux/authActions';
 
 export class UserSignupPage extends React.Component {
     state = {
         displayName: '',
-        userName: '',
+        username: '',
         password: '',
         passwordRepeat: '',
         pendingApiCall: false,
@@ -22,8 +24,8 @@ export class UserSignupPage extends React.Component {
     onChangeUserName = (event) => {
         const value = event.target.value;
         const errors = { ...this.state.errors }
-        delete errors.userName;
-        this.setState({ userName: value, errors });
+        delete errors.username;
+        this.setState({ username: value, errors });
     };
     onChangePassword = (event) => {
         const value = event.target.value;
@@ -43,16 +45,17 @@ export class UserSignupPage extends React.Component {
 
     onClickSignup = () => {
         const user = {
-            userName: this.state.userName,
+            userName: this.state.username,
             displayName: this.state.displayName,
             password: this.state.password
         };
         this.setState({pendingApiCall: true}); 
-        this.props.actions.postSignup(user)
+        this.props.actions
+            .postSignup(user)
             .then((response) => {
-                this.setState({ pendingApiCall: false }, () => {
+                this.setState({pendingApiCall: false}, () => {
                     this.props.navigate('/');
-                });
+                 }); 
             })
             .catch(apiError => {
                 let errors = {...this.state.errors }
@@ -81,10 +84,10 @@ export class UserSignupPage extends React.Component {
                     <Input
                         label="Your username"
                         placeholder="Your username" 
-                        value={this.state.userName}
+                        value={this.state.username}
                         onChange={this.onChangeUserName}
-                        hasError={this.state.errors.userName && true}
-                        error={this.state.errors.userName}
+                        hasError={this.state.errors.username && true}
+                        error={this.state.errors.username}
                     />
                 </div>
                 <div className="col-12 mb-3">
@@ -131,4 +134,12 @@ UserSignupPage.defaultProps = {
     }
 };
 
-export default withRouter(UserSignupPage);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        actions: {
+            postSignup: (user) => dispatch(authActions.signupHandler(user))
+        }
+    };
+};
+
+export default connect(null, mapDispatchToProps)(withRouter(UserSignupPage));
