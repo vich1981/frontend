@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authReducer';
 import logger from 'redux-logger';
+import * as apiCalls from '../api/apiCalls';
 
 // const loggedInState = {
 //   id: 1,
@@ -12,16 +13,42 @@ import logger from 'redux-logger';
 // };
 
 const configStore = (addLogger = true) => {
-    return addLogger
+
+    let localStorageData = localStorage.getItem('chatitc-auth');
+
+    let persistedState = {
+        id: 0,
+        username: '',
+        displayName: '',
+        image: '',
+        password: '',
+        isLoggedIn: false
+    };
+
+    if (localStorageData) {
+        try{
+            persistedState = JSON.parse(localStorageData);
+            apiCalls.setAuthorizationHeader(persistedState);
+        } catch (error) {}
+    }
+    const store = addLogger
     ? configureStore({
         reducer: authReducer,
-        // preloadedState: loggedInState,
+        preloadedState: persistedState,
         middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger)
     })
     : configureStore({
         reducer: authReducer,
-        // preloadedState: loggedInState,
+        preloadedState: persistedState,
         middleware: (getDefaultMiddleware) => getDefaultMiddleware()
     });
+
+    store.subscribe(() => {
+        localStorage.setItem('chatitc-auth', JSON.stringify(store.getState()));
+        apiCalls.setAuthorizationHeader(store.getState());
+    });
+
+    return store;
+
 };
 export default configStore;

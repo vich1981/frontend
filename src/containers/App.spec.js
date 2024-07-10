@@ -8,6 +8,22 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../redux/authReducer';
 import axios from 'axios';
 import configStore from '../redux/configureStore';
+import * as apiCalls from '../api/apiCalls';
+
+import { encodeBase64 } from '../redux/encoderFunctions';
+
+apiCalls.listUsers = jest.fn().mockResolvedValue({
+    data:{
+        content: [],
+        number: 0,
+        size: 3
+    }
+});
+
+beforeEach(() => {
+    localStorage.clear();
+    delete axios.defaults.headers.common['Authorization'];
+})
 
 const setup = (path) => {
     const store = configStore(false);
@@ -154,5 +170,68 @@ describe('App', () => {
         expect(myProfileLink).toBeInTheDocument();
 
     });
+
+    it('displays logged in topBar when storage has logged in user data', () => {
+        localStorage.setItem(
+            'chatitc-auth',
+            JSON.stringify({
+                id: 1,
+                username: 'user1',
+                displayName: 'display1',
+                image: 'profile1.png',
+                password: 'P4ssword',
+                isLoggedIn: true
+            })
+        );
+        const { queryByText } = setup('/');
+        const myProfileLink = queryByText('My Profile');
+        expect(myProfileLink).toBeInTheDocument();
+    });
+
+    it('sets axios authorization with base64 encoded user credentials after login success', async () => {
+        const { queryByPlaceholderText, container, findByText } = setup('/login');
+        
+        const usernameInput = queryByPlaceholderText('Your username');
+        fireEvent.change(usernameInput, changeEvent('user1'));
+        const passwordInput = queryByPlaceholderText('Your password');
+        fireEvent.change(passwordInput, changeEvent('P4ssword'));
+        const button = container.querySelector('button');
+        axios.post = jest.fn().mockResolvedValue({
+            data: {
+                id: 1,
+                username: 'user1',
+                displayName: 'display1',
+                image: 'profile1.png'
+            }
+        });
+        fireEvent.click(button);
+        await findByText('My Profile');
+        const axiosAuthorization = axios.defaults.headers.common['Authorization'];
+
+        const encoded = encodeBase64('user1:P4ssword');
+        const expectedAuthorization = `Basic ${encoded}`;
+        expect(axiosAuthorization).toBe(expectedAuthorization);
+
+    });
+
+    it('removes axios authorization header when user logout', () => {
+        localStorage.setItem(
+            'chatitc-auth',
+            JSON.stringify({
+                id: 1,
+                username: 'user1',
+                displayName: 'display1',
+                image: 'profile1.png',
+                password: 'P4ssword',
+                isLoggedIn: true
+            })
+        );
+        const { queryByText } = setup('/');
+        fireEvent.click(queryByText('Logout'));
+
+        const axiosAuthorization = axios.defaults.headers.common['Authorization'];
+        expect(axiosAuthorization).toBeFalsy();
+    });
 });
+console.error = () => {};
 

@@ -195,7 +195,7 @@ describe('LoginPage', () => {
             expect(alert).not.toBeInTheDocument();
         });
 
-        it('does not allow user to click the Login button when there is an ongoig api call', () => {
+        it('does not allow user to click the Login button when there is an on going api call', () => {
             const actions = {
               postLogin: mockAsyncDelayed()
             };

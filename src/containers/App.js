@@ -21,11 +21,10 @@ function App() {
       <TopBar> 
       </TopBar>
       <div className="container">
-     
           <Routes>
-            <Route exact path="/" element={<HomePage />} />
-            <Route path="/login"  element={<LoginPage />} /> {/* Component={(props) => <LoginPage {...props} actions={actions} />} /> */}
-            <Route path="/signup" element={<UserSignupPage />} /> {/*Component={(props) => <UserSignupPage {...props} actions={actions} />} />*/}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login"  element={<LoginPage />} />    {/* Component={(props) => <LoginPage {...props} actions={actions} />} /> */}
+            <Route path="/signup" element={<UserSignupPage />} />   {/*Component={(props) => <UserSignupPage {...props} actions={actions} />} />*/}
             <Route path="/:username" element={<UserPage />} />
           </Routes>
       </div>
