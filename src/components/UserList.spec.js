@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitForDomChange} from '@testing-library/react';
 import UserList from './UserList';
 import * as apiCalls from '../api/apiCalls';
+import { MemoryRouter } from 'react-router-dom';
 
 apiCalls.listUsers = jest.fn().mockResolvedValue({
     data:{
@@ -11,7 +12,11 @@ apiCalls.listUsers = jest.fn().mockResolvedValue({
     }
 });
 const setup = () => {
-    return render(<UserList />);
+    return render(
+        <MemoryRouter>
+            <UserList />
+        </MemoryRouter>
+    );
 };
 
 const mockedEmptySuccessResponse = {
@@ -91,6 +96,14 @@ const mockSuccessGetMultiPageLast = {
     }
 };
 
+const mockFailGet = {
+    response: {
+        data: {
+            message: 'Load error'
+        }
+    }
+};
+
 describe('UserList', () => {
     describe('Layout', () => {
         it('has header of Users', () => {
@@ -106,7 +119,7 @@ describe('UserList', () => {
             const userGroup = await findByTestId('usergroup');
             expect(userGroup.childElementCount).toBe(3);
         });
-        it('displays the displayName@username when listUser api returns three users', async() =>{
+        it('displays the displayName@username when listUser api returns users', async() =>{
             apiCalls.listUsers = jest
                 .fn()
                 .mockResolvedValue(mockSuccessGetSinglePage);
@@ -151,6 +164,16 @@ describe('UserList', () => {
             const previos = await findByText('< Previos');
             expect(previos).not.toBeInTheDocument();
         });
+        it('has link to UserPage', async() =>{
+            apiCalls.listUsers = jest
+                .fn()
+                .mockResolvedValue(mockSuccessGetSinglePage);
+            
+            const { findByText, container } = setup();
+            await findByText('display1@user1');
+            const firstAnchor = container.querySelectorAll('a')[0];
+            expect(firstAnchor.getAttribute('href')).toBe('/user1');
+        });
     });
     describe('Lifecycle', () => {
         it('calls listUsers api when it is rendered', () =>{
@@ -192,6 +215,33 @@ describe('UserList', () => {
             fireEvent.click(previos);
             const firstPageUser = await findByText('display1@user1');
             expect(firstPageUser).toBeInTheDocument();
+        });
+        it('displays error message when loading other page fails', async () => {
+            apiCalls.listUsers = jest
+                .fn()
+                .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
+                .mockRejectedValueOnce(mockFailGet);
+            
+            const { findByText } = setup();
+            const previos = await findByText('< Previos');
+            fireEvent.click(previos);
+            const errorMessage = await findByText('User load failed');
+            expect(errorMessage).toBeInTheDocument();
+        });
+        it('hides error message when successfully loading other page', async () => {
+            apiCalls.listUsers = jest
+                .fn()
+                .mockResolvedValueOnce(mockSuccessGetMultiPageLast)
+                .mockRejectedValueOnce(mockFailGet)
+                .mockResolvedValueOnce(mockSuccessGetMultiPageFirst);
+            
+            const { findByText } = setup();
+            const previos = await findByText('< Previos');
+            fireEvent.click(previos);
+            await findByText('User load failed');
+            fireEvent.click(previos);
+            const errorMessage = await findByText('User load failed');
+            expect(errorMessage).not.toBeInTheDocument();
         });
     });
 });

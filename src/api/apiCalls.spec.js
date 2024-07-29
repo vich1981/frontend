@@ -48,4 +48,12 @@ describe('apiCalls', () => {
             expect(mockListUsers).toHaveBeenCalledWith('/api/1.0/users?page=0&size=5');
         });
     });
+    describe('getUser', () => {
+        it('calls /api/1.0/users/user5 when user5 is provided for get', () => {
+            const mockGetUser = jest.fn();
+            axios.get = mockGetUser;
+            apiCalls.getUser('user5');
+            expect(mockGetUser).toHaveBeenCalledWith('/api/1.0/users/user5');
+        })
+    })
 });

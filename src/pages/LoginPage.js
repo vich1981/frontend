@@ -2,7 +2,7 @@ import React from 'react';
 import Input from '../components/Input';
 import ButtonWithProgress from '../components/ButtonWithProgress';
 import { withRouter } from '../components/withRouter';
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import * as authActions from '../redux/authActions';
 
 

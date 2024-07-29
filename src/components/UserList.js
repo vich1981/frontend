@@ -21,8 +21,12 @@ class UserList extends React.Component {
             .listUsers({ page: requestPage, size: this.state.page.size })
             .then((response) => {
                 this.setState({
-                    page: response.data
+                    page: response.data,
+                    loadError: undefined
                 });
+            })
+            .catch(error => {
+                this.setState({ loadError: 'User load failed'});
             });
     };
 
@@ -62,6 +66,9 @@ class UserList extends React.Component {
                                 Next {'>'}
                             </Badge>
                         </span>
+                    )}
+                    {this.state.loadError && (
+                        <span className="d-flex justify-content-center text-danger">{this.state.loadError}</span>
                     )}
                 </div>
             </div>
