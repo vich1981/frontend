@@ -4,11 +4,12 @@ import { MemoryRouter } from 'react-router-dom';
 import App from './App';
 
 import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '../redux/authReducer';
-import axios from 'axios';
 import configStore from '../redux/configureStore';
+import axios from 'axios';
 import * as apiCalls from '../api/apiCalls';
+
+// import { configureStore } from '@reduxjs/toolkit';
+// import authReducer from '../redux/authReducer';
 
 import { encodeBase64 } from '../redux/encoderFunctions';
 
@@ -58,7 +59,7 @@ const mockFailGetUser = {
 beforeEach(() => {
     localStorage.clear();
     delete axios.defaults.headers.common['Authorization'];
-})
+});
 
 const setup = (path) => {
     const store = configStore(false);
