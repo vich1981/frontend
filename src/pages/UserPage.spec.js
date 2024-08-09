@@ -49,8 +49,9 @@ const match = {
     }
 };
 
+let store;
 const setup = (props) => {
-    const store = configStore(false);
+    store = configStore(false);
     return render(
         <Provider store={store}>
             <UserPage {...props} />
@@ -452,7 +453,39 @@ describe('UserPage', () => {
             fireEvent.click(queryByText('Edit'));
             const errorMessage = queryByText('It must have minimum 4 and maximum 255 characters');
             await waitFor(() => expect(errorMessage).not.toBeInTheDocument());
-        })
+        });
+        it('updates redux state after updateUser api call success', async () => {
+            const { queryByText, findByText, container } = await setupForEdit();
+            
+            let displayInput = container.querySelector('input');
+            fireEvent.change(displayInput, {target: {value: 'display1-update'}});
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+            
+            const saveButton = queryByText('Save');
+            fireEvent.click(saveButton);
+            await waitFor(() => {});
+
+            const storedUserData = store.getState();
+            expect(storedUserData.displayName).toBe(mockSuccessUpdateUser.data.displayName);
+            expect(storedUserData.image).toBe(mockSuccessUpdateUser.data.image);
+
+        });
+        it('updates localStorage after updateUser api call success', async () => {
+            const { queryByText, findByText, container } = await setupForEdit();
+            
+            let displayInput = container.querySelector('input');
+            fireEvent.change(displayInput, {target: {value: 'display1-update'}});
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser);
+            
+            const saveButton = queryByText('Save');
+            fireEvent.click(saveButton);
+            await waitFor(() => {});
+
+            const storedUserData = JSON.parse(localStorage.getItem('chatitc-auth'));
+            expect(storedUserData.displayName).toBe(mockSuccessUpdateUser.data.displayName);
+            expect(storedUserData.image).toBe(mockSuccessUpdateUser.data.image);
+
+        });
     });
 });
 console.error = () => {}; 
